@@ -45,12 +45,6 @@ def main():
         default="trim_map.txt",
         help="Name (or path) of the trim-map file (default: trim_map.txt)"
     )
-    parser.add_argument(
-        "--format",
-        choices=["mp3", "wav"],
-        default="mp3",
-        help="Output audio format (default: mp3)"
-    )
     args = parser.parse_args()
 
     # ─── 1. Validate target directory
@@ -80,7 +74,7 @@ def main():
 
     # ─── 3. Prepare output directory
     prefix = target_dir.name
-    out_dir = target_dir / f"{prefix}_{args.format}"
+    out_dir = target_dir / f"{prefix}_wav"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # ─── 4. Process each .webm
@@ -95,31 +89,58 @@ def main():
 
         stem = webm_file.stem
         temp_wav = out_dir / f"{stem}_full.wav"
-        final_out = out_dir / f"{stem}.{args.format}"
-        out_file = out_dir / f"{webm_file.stem}.{args.format}"
-        print(f"  🎧 Converting: {webm_file.name} → {out_file.name} "
-              f"(–ss {trim_seconds}, 16 kHz mono, {args.format})")
+        final_out = out_dir / f"{stem}.wav"
 
-        cmd = [
+        # ─── Step 1: Convert .webm → 16 kHz mono WAV (full length)
+        print(f"  🎧 Step 1: Converting → {temp_wav.name} (16 kHz mono, full length)")
+        cmd_convert = [
             "ffmpeg",
             "-hide_banner",
             "-loglevel", "error",
-            "-ss", str(trim_seconds),
             "-i", str(webm_file),
-            "-ar", "16000",       # 16 kHz sample rate
-            "-ac", "1",           # mono
+            "-ar", "16000",  # 16 kHz sample rate
+            "-ac", "1",  # mono
+            #"-c:a", "pcm_s16le",  # 16‐bit PCM WAV
+            str(temp_wav)
         ]
-
-        if args.format == "mp3":
-            cmd += ["-q:a", "0", "-map", "a", str(out_file)]
-        else:  # wav
-            cmd += [str(out_file)]
-
         try:
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd_convert, check=True)
         except subprocess.CalledProcessError as e:
-            print(f"❌ ffmpeg failed on {webm_file.name}: {e}", file=sys.stderr)
+            print(f"❌ ffmpeg conversion failed on {webm_file.name}: {e}", file=sys.stderr)
             continue
+
+        # ─── Step 2: Trim the intermediate WAV to final WAV
+        if trim_seconds > 0:
+            print(f"  🎧 Step 2: Trimming first {trim_seconds}s from {temp_wav.name} → {final_out.name}")
+            cmd_trim = [
+                "ffmpeg",
+                "-hide_banner",
+                "-loglevel", "error",
+                "-ss", str(trim_seconds),
+                "-i", str(temp_wav),
+                "-c", "copy",      # copy PCM chunks into final WAV
+                str(final_out)
+            ]
+        else:
+            # No trimming requested; rename the full WAV to final
+            temp_wav.rename(final_out)
+            print(f"  ℹ️  No trim; renamed {temp_wav.name} → {final_out.name}")
+            cmd_trim = None
+
+        if cmd_trim:
+            try:
+                subprocess.run(cmd_trim, check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"❌ ffmpeg trimming failed on {temp_wav.name}: {e}", file=sys.stderr)
+                continue
+
+        # ─── Remove the intermediate WAV
+        try:
+            temp_wav.unlink()
+            print(f"  🗑 Removed intermediate file: {temp_wav.name}")
+        except OSError:
+            pass
+
         print()
 
     print("✅ All done.")

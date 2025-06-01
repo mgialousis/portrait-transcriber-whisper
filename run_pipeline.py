@@ -17,7 +17,7 @@ def main():
     map_file   = Path(sys.argv[2] if len(sys.argv) > 2 else "trim_map.txt").resolve()
 
     # Step 1: Convert & trim to WAV + generate manifest
-    run_cmd(f"python convert_and_trim.py {target_dir} {map_file} --format wav")
+    run_cmd(f"python convert_and_trim.py {target_dir} {map_file}")
 
     prefix  = target_dir.name
     wav_dir = target_dir / f"{prefix}_wav"
