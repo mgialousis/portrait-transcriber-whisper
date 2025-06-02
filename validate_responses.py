@@ -52,6 +52,10 @@ def main():
 
     # Validate
     valid_mask = validate(df, args.column)
+    # Convert the list to a Pandas Series if necessary.
+    if not isinstance(valid_mask, pd.Series):
+        valid_mask = pd.Series(valid_mask, index=df.index)
+
     df['valid_response'] = valid_mask
 
     # Summary
@@ -72,6 +76,10 @@ def main():
     out_csv = args.input_csv.with_name(args.input_csv.stem + "_validated.csv")
     df.to_csv(out_csv, index=False)
     print(f"Annotated CSV written to: {out_csv}")
+
+    alarms_df = df[~valid_mask]
+    alarms_df.to_csv(args.input_csv.with_name("alarms.csv"), index=False)
+    print("Alarms CSV file written to: alarms.csv")
 
     # Optionally, could add color output with ANSI
     if failed == 0:

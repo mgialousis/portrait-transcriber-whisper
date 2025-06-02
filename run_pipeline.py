@@ -42,12 +42,15 @@ def main():
         f"--output_xlsx  {xlsx_path}"
     )
 
+    new_csv_path = csv_path.parent / f"no_duplicates_{csv_path.stem}{csv_path.suffix}"
+
+
     # 5) Validate responses
     validate_col = "transcript_whisper"
     validated_csv = target_dir / f"transcripts_validated.csv"
     run_cmd(
         f"python validate_responses.py "
-        f"{csv_path} "
+        f"{new_csv_path} "
         f"--column {validate_col}"
     )
 
