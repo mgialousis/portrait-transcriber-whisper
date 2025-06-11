@@ -14,8 +14,9 @@ def run_pipeline_on_folder(folder: Path):
 def main():
     base_dir = Path("/Users/miltos/Desktop/ftp_portrait/PORTRAIT")
     exclude_dir = base_dir / "backup_original"
+    include_dir = [ base_dir / "D1D2V" ]
 
-    subfolders = [f for f in base_dir.iterdir() if f.is_dir() and f != exclude_dir]
+    subfolders = [f for f in base_dir.iterdir() if f.is_dir() and f in include_dir]
 
     for folder in sorted(subfolders):
         run_pipeline_on_folder(folder)

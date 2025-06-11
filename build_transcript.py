@@ -84,15 +84,12 @@ def main():
 
     print(f"✅ Wrote {len(df)} rows to {args.output_csv} and {args.output_xlsx}")
 
-    # ─── Drop duplicates, keeping only the last occurrence for each (questionnaire, question)
-    df = df.drop_duplicates(subset=["questionnaire", "question"], keep="last")
+    # Identify all duplicate rows based on 'questionnaire' and 'question'
+    duplicates = df[df.duplicated(subset=["questionnaire", "question"], keep=False)]
 
-    # Create new paths by adding a prefix "no_duplicates_" to the original file names
-    new_csv_path = args.output_csv.parent / f"no_duplicates_{args.output_csv.stem}{args.output_csv.suffix}"
-    new_xlsx_path = args.output_xlsx.parent / f"no_duplicates_{args.output_xlsx.stem}{args.output_xlsx.suffix}"
-
-    df.to_csv(new_csv_path, index=False, encoding="utf-8-sig")
-    df.to_excel(new_xlsx_path, index=False)
+    # Write the duplicates to a CSV file for manual review
+    duplicates.to_csv(args.output_csv.with_name("duplicate_questions.csv"), index=False)
+    print("Duplicate questions written to: manually_check_duplicate_questions.csv")
 
     print(f"✅ Wrote {len(df)} rows to no_duplicates: {args.output_csv} and {args.output_xlsx}")
 
