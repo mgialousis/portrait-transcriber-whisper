@@ -13,7 +13,7 @@ warnings.filterwarnings(
     message=".*The input name `inputs` is deprecated.*"
 )
 
-MAX_CHUNK_S = 30  # Whisper’s ~30 s limit
+MAX_CHUNK_S = 28  # Whisper’s ~30 s limit
 
 def parse_args():
     p = argparse.ArgumentParser(
