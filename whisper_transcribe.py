@@ -103,6 +103,8 @@ def main():
 
     with args.output_jsonl.open("w", encoding="utf-8") as out:
         for wav in sorted(args.audio_dir.glob("*.wav"), key=lambda p: p.name):
+            if wav.name.startswith("."):
+                continue
             print(f"🔊 Whisper → {wav.name}", end="… ")
             result = transcribe_file(pipe, wav)
             result["audio_filepath"] = str(wav.resolve())
