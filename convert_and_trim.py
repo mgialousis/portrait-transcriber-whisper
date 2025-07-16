@@ -98,9 +98,9 @@ def main():
             "-hide_banner",
             "-loglevel", "error",
             "-i", str(webm_file),
+            "-acodec", "pcm_s16le",  # 16‐bit PCM WAV
             "-ar", "16000",  # 16 kHz sample rate
             "-ac", "1",  # mono
-            #"-c:a", "pcm_s16le",  # 16‐bit PCM WAV
             str(temp_wav)
         ]
         try:

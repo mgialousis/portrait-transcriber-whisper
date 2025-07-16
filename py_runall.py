@@ -12,9 +12,9 @@ def run_pipeline_on_folder(folder: Path):
         print(f"❌ Pipeline failed for {folder}: {e}")
 
 def main():
-    base_dir = Path("/Users/miltos/Desktop/ftp_portrait/PORTRAIT")
+    base_dir = Path(r"D:\Usuarios\MGIALOU\Desktop\ToProcess")
     exclude_dir = base_dir / "backup_original"
-    include_dir = [ base_dir / "NR21X", base_dir / "12TCV", base_dir / "21WYJ", base_dir / "F2Z1W", base_dir / "C2NN1"]
+    include_dir = [ base_dir / "2S1VM"]
 
     subfolders = [f for f in base_dir.iterdir() if f.is_dir() and f in include_dir]
 
