@@ -1,3 +1,7 @@
 backup/
 Test_Audios/
 .*
+py_runall.py
+__pycache__/build_transcript.cpython-310.pyc
+__pycache__/convert_and_trim.cpython-310.pyc
+__pycache__/validate_responses.cpython-310.pyc
